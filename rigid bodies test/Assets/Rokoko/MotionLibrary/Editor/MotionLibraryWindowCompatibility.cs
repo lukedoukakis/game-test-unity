@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace Rokoko.MotionLibraryCompatibility
 {
+	
+	/*
     internal class MotionLibraryWindowCompatibility : EditorWindow
     {        
         internal class Fonts
@@ -124,4 +126,5 @@ namespace Rokoko.MotionLibraryCompatibility
             GUILayout.FlexibleSpace();
         }
     }
+	*/
 }

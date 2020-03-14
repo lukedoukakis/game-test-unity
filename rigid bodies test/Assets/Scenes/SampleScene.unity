@@ -1278,6 +1278,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1463787337}
+  cameraDistance: 2.5
 --- !u!1 &574923398
 GameObject:
   m_ObjectHideFlags: 0
@@ -2663,21 +2664,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7246f84164dcc894e8075c7f438fb17b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 1463787329}
   rigidBody: {fileID: 900100020}
   hitBox: {fileID: 900100019}
   groundTrigger: {fileID: 900100018}
-  player: {fileID: 1463787329}
-  GROUNDTOUCH_THISFRAME: 0
-  GROUNDTOUCH_LASTFRAME: 0
-  isRunning: 0
   senseDistance: 7
   maxFleeDistance: 10
   maxFollowDistance: 100000
   minFollowDistance: 1
   maxJumpableObstacleHeight: 3.5
   maxJumpFromDistance: 1.2
+  isRunning: 0
   rotMagnitude: 0.07
   jumpForce: 500
+  GROUNDTOUCH_THISFRAME: 0
+  GROUNDTOUCH_LASTFRAME: 0
 --- !u!65 &900100018
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -3327,12 +3328,12 @@ MonoBehaviour:
   hitBox: {fileID: 1463787334}
   groundTrigger: {fileID: 1463787336}
   rigidBody: {fileID: 1463787333}
-  GROUNDTOUCH_THISFRAME: 0
-  GROUNDTOUCH_LASTFRAME: 0
-  airTime: 0
   moveSpeed_run: 400
   moveSpeed_sprint: 600
   jumpForce: 1100
+  GROUNDTOUCH_THISFRAME: 0
+  GROUNDTOUCH_LASTFRAME: 0
+  airTime: 0
 --- !u!114 &1463787332
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -84,8 +84,8 @@ public class npc_ai : MonoBehaviour
 		
 		POS_THISFRAME = transform.position;
 		
-		//flee(player);
-		follow(player);
+		flee(player);
+		//follow(player);
 		
 		GROUNDTOUCH_LASTFRAME = GROUNDTOUCH_THISFRAME;
 		POS_LASTFRAME = POS_THISFRAME;

@@ -9,10 +9,10 @@ public class camera_pivot : MonoBehaviour
 	
 	Vector3 playerPos;
 	Vector3 targetPos;
-	Vector3 curRotation;
 	float pi = Mathf.PI;
 	float posModifier;
 	
+	public float cameraDistance;
 	float sensitivity = .005f;
 
 
@@ -42,7 +42,7 @@ public class camera_pivot : MonoBehaviour
 			posModifier = -.5f;
 		}
 		
-		targetPos = playerPos + (2f*Mathf.Cos(posModifier*pi) * player.forward*-1) + (2f*Mathf.Sin(posModifier*pi) * Vector3.up) + (Vector3.up*.5f);
+		targetPos = playerPos + (cameraDistance*Mathf.Cos(posModifier*pi) * player.forward*-1) + (cameraDistance*Mathf.Sin(posModifier*pi) * Vector3.up) + (Vector3.up*.5f);
 		float x = Mathf.Lerp(transform.position.x, targetPos.x, .3f);
 		float y = Mathf.Lerp(transform.position.y, targetPos.y + 1f, 1f);
 		float z = Mathf.Lerp(transform.position.z, targetPos.z, .2f);
