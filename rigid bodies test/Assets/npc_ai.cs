@@ -6,20 +6,17 @@ using System;
 public class npc_ai : MonoBehaviour
 {
 	
+	public GameObject player;
+	movement playerScript;
+	
+	// *********************
+	// colliders
 	public Rigidbody rigidBody;
 	public BoxCollider hitBox;
 	public BoxCollider groundTrigger;
 	
-	public GameObject player;
-	movement playerScript;
-	
-	public bool GROUNDTOUCH_THISFRAME;
-	public bool GROUNDTOUCH_LASTFRAME;
-	public bool isRunning;
-	
-	
 	// *********************
-	// distance settings
+	// distances
 	
 	public float senseDistance;
 	public float maxFleeDistance;
@@ -27,31 +24,29 @@ public class npc_ai : MonoBehaviour
 	public float minFollowDistance;
 	public float maxJumpableObstacleHeight;
 	public float maxJumpFromDistance;
-	
-	
+		
 	// *********************
-	// movement vars
-	
-	Vector3 distanceVec;
-	Quaternion targetRot;
-	public float rotMagnitude;
-	float rotMultiplier;
-	
-	float moveSpeed;
-	Vector3 moveForce;
-	
-	public float jumpForce;
-	Vector3 jumpVec;
-	Vector3 surfaceAngle;
+	// movement
 	
 	Vector3 POS_THISFRAME;
 	Vector3 POS_LASTFRAME;
-	Vector3 travelVec;
+	float moveSpeed;
+	public bool isRunning;
+
+	Quaternion qua_targetRot;
+	public float rotMagnitude;
+	
+	
+	public float jumpForce;
+	Vector3 jumpVec;
+	Vector3 vec_surfaceNormal;
 	
 	// *********************
+	// sensing
 	
+	public bool GROUNDTOUCH_THISFRAME;
+	public bool GROUNDTOUCH_LASTFRAME;
 	
-	// sensing vars
 	RaycastHit leftHitInfo;
 	RaycastHit centerHitInfo;
 	RaycastHit rightHitInfo;
@@ -89,8 +84,8 @@ public class npc_ai : MonoBehaviour
 		
 		POS_THISFRAME = transform.position;
 		
-		flee(player);
-		//follow(player);
+		//flee(player);
+		follow(player);
 		
 		GROUNDTOUCH_LASTFRAME = GROUNDTOUCH_THISFRAME;
 		POS_LASTFRAME = POS_THISFRAME;
@@ -102,8 +97,8 @@ public class npc_ai : MonoBehaviour
 		Vector3 differenceVec = transform.position - targetPos;
 		differenceVec.y = 0;
 		
-		targetRot = Quaternion.LookRotation(differenceVec, Vector3.up);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, magnitude);
+		qua_targetRot = Quaternion.LookRotation(differenceVec, Vector3.up);
+		transform.rotation = Quaternion.Slerp(transform.rotation, qua_targetRot, magnitude);
 	}
 	
 	void rotateToward(Vector3 targetPos, float magnitude){
@@ -111,18 +106,18 @@ public class npc_ai : MonoBehaviour
 		Vector3 differenceVec = transform.position - targetPos;
 		differenceVec.y = 0;
 		
-		targetRot = Quaternion.LookRotation(differenceVec*-1, Vector3.up);
-		transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, magnitude);
+		qua_targetRot = Quaternion.LookRotation(differenceVec*-1, Vector3.up);
+		transform.rotation = Quaternion.Slerp(transform.rotation, qua_targetRot, magnitude);
 	}
 	
 	void move(Vector3 direction, float magnitude){
-		moveForce = transform.TransformDirection(direction) * moveSpeed;
-		rigidBody.AddForce(moveForce * magnitude * Time.deltaTime, ForceMode.Impulse);
+		Vector3 move = transform.TransformDirection(direction) * moveSpeed;
+		rigidBody.AddForce(move * magnitude * Time.deltaTime, ForceMode.Impulse);
 	}
 	
 	void jump(){
-		rigidBody.MovePosition(transform.position + surfaceAngle);
-		jumpVec = surfaceAngle * jumpForce * Time.deltaTime;
+		rigidBody.MovePosition(transform.position + vec_surfaceNormal);
+		jumpVec = vec_surfaceNormal * jumpForce * Time.deltaTime;
 		rigidBody.AddForce(jumpVec, ForceMode.Impulse);
 	}
 	
@@ -220,10 +215,10 @@ public class npc_ai : MonoBehaviour
 	*/
 	void flee (GameObject obj){
 		
-		distanceVec = transform.position - obj.transform.position;
-		distanceVec.y = 0;
+		Vector3 vec_pathFromObject = transform.position - obj.transform.position;
+		vec_pathFromObject.y = 0;
 		
-		if(distanceVec.magnitude < maxFleeDistance){
+		if(vec_pathFromObject.magnitude < maxFleeDistance){
 			
 			// if obstacle in front
 			if(senseObstacle()){
@@ -252,28 +247,24 @@ public class npc_ai : MonoBehaviour
 			isRunning = false;
 			rotateToward(player.transform.position, .1f);
 		}
-		
-		while(rotMultiplier >= 1f){
-			rotMultiplier -= .1f;
-		}
 	}
 	
-	// FINISH
-	/*
+	// TO FINISH
+	
 	// follow player if between minFollowDistance and maxFollowDistance
 	void follow (GameObject obj){
 		
-		distanceVec = transform.position - obj.transform.position;
-		distanceVec.y = 0;
+		Vector3 vec_pathFromObject = transform.position - obj.transform.position;
+		vec_pathFromObject.y = 0;
 		
-		if(distanceVec.magnitude < maxFollowDistance && distanceVec.magnitude > minFollowDistance){
+		if(vec_pathFromObject.magnitude < maxFollowDistance && vec_pathFromObject.magnitude > minFollowDistance){
 			
 			// if obstacle in front and it's not the player object
 			if(senseObstacle() && !playerSensed){
 				
 				// if obstacle can't be jumped over, navigate around it
 				if(!canClearObstacle()){
-					navigateObstacle();
+					turnTowardsMostOpenPath(rotMagnitude);
 					rotateToward(player.transform.position, .05f);
 				}
 				else{	
@@ -291,19 +282,20 @@ public class npc_ai : MonoBehaviour
 			// move forward
 			isRunning = true;
 			move(Vector3.forward, 1f);
-		} else {
+		}
+		else{
 			isRunning = false;
 		}
 	}
-	*/
+	
 	
 	void OnTriggerEnter(Collider other){
 		GROUNDTOUCH_THISFRAME = true;
-		surfaceAngle = Vector3.Lerp(surfaceAngle, other.gameObject.transform.TransformDirection(Vector3.up), 1f);
+		vec_surfaceNormal = Vector3.Lerp(vec_surfaceNormal, other.gameObject.transform.TransformDirection(Vector3.up), 1f);
 	}
 	void OnTriggerStay(Collider other){
 		GROUNDTOUCH_THISFRAME = true;
-		//surfaceAngle = Vector3.Lerp(surfaceAngle, other.gameObject.transform.TransformDirection(Vector3.up),.1f);
+		//vec_surfaceNormal = Vector3.Lerp(vec_surfaceNormal, other.gameObject.transform.TransformDirection(Vector3.up),.1f);
 	
 	}
 	void OnTriggerExit(Collider other){

@@ -4,27 +4,30 @@ using UnityEngine;
 
 public class movement : MonoBehaviour
 {
-
+	
+	// colliders
 	public BoxCollider hitBox;
 	public BoxCollider groundTrigger;
 	public Rigidbody rigidBody;
 	
+	// WASD movement
+	public float moveSpeed_run;
+	public float moveSpeed_sprint;
+	float moveSpeed;
+	float movementZ;
+	float movementX;
+	Vector3 vec_movementDir;
+	
+	// jumping
+	public float jumpForce;
+	bool jumpInput;
+	Vector3 vec_jumpDir;
+	Vector3 vec_surfaceNormal;
+	
+	// sensing
 	public bool GROUNDTOUCH_THISFRAME;
 	public bool GROUNDTOUCH_LASTFRAME;
 	public int airTime;
-	
-	public float moveSpeed_run;
-	public float moveSpeed_sprint;
-	float movementX;
-	float movementZ;
-	Vector3 movementTot;
-	
-	float moveForce;
-	public float jumpForce;
-	Vector3 jumpVec;
-	bool jumpInput;
-	
-	Vector3 surfaceAngle;
 	RaycastHit hitInfo;
 
 	
@@ -34,7 +37,6 @@ public class movement : MonoBehaviour
     {
 		
 		jumpInput = false;
-		
     }
 
     // Update is called once per frame
@@ -46,20 +48,20 @@ public class movement : MonoBehaviour
 		} else { airTime++; }
 		
 		if(Input.GetKey(KeyCode.W) && Input.GetKey(KeyCode.LeftShift)){
-			moveForce = moveSpeed_sprint;
+			moveSpeed = moveSpeed_sprint;
 		}else{
-			moveForce = moveSpeed_run;
+			moveSpeed = moveSpeed_run;
 		}
 		
         movementX = Input.GetAxis("Horizontal");
 		movementZ = Input.GetAxis("Vertical");
-		movementTot = new Vector3(movementX, 0, movementZ);
-		movementTot *= moveForce;
-		movementTot = transform.TransformDirection(movementTot);
-		rigidBody.AddForce(movementTot * Time.deltaTime, ForceMode.Impulse);
+		vec_movementDir = new Vector3(movementX, 0, movementZ);
+		vec_movementDir *= moveSpeed;
+		vec_movementDir = transform.TransformDirection(vec_movementDir);
+		rigidBody.AddForce(vec_movementDir * Time.deltaTime, ForceMode.Impulse);
 		
-		Vector3 surfaceVec = new Vector3(surfaceAngle.x, 0f, surfaceAngle.z);
-		rigidBody.AddForce(surfaceVec * moveForce * Time.deltaTime, ForceMode.Impulse);
+		Vector3 surfaceVec = new Vector3(vec_surfaceNormal.x, 0f, vec_surfaceNormal.z);
+		rigidBody.AddForce(surfaceVec * moveSpeed * Time.deltaTime, ForceMode.Impulse);
 		
 		if(GROUNDTOUCH_THISFRAME && GROUNDTOUCH_LASTFRAME){
 			if(Input.GetKey(KeyCode.Space)){
@@ -71,7 +73,7 @@ public class movement : MonoBehaviour
 	
     }
 	
-	
+	// jump in FixedUpdate() to avoid inconsistent jump height
 	void FixedUpdate(){
 		if(jumpInput){
 			jump();
@@ -81,18 +83,18 @@ public class movement : MonoBehaviour
 	
 	
 	void jump(){
-		transform.position = transform.position + (surfaceAngle.normalized)*.1f;
-		jumpVec = surfaceAngle * jumpForce * Time.deltaTime;
-		rigidBody.AddForce(jumpVec, ForceMode.Impulse);
+		transform.position = transform.position + (vec_surfaceNormal.normalized)*.1f;
+		vec_jumpDir = vec_surfaceNormal * jumpForce * Time.deltaTime;
+		rigidBody.AddForce(vec_jumpDir, ForceMode.Impulse);
 	}
 	
 	void OnTriggerEnter(Collider other){
 		GROUNDTOUCH_THISFRAME = true;
-		surfaceAngle = Vector3.Lerp(surfaceAngle, other.gameObject.transform.TransformDirection(Vector3.up), 1f);
+		vec_surfaceNormal = Vector3.Lerp(vec_surfaceNormal, other.gameObject.transform.TransformDirection(Vector3.up), 1f);
 	}
 	void OnTriggerStay(Collider other){
 		GROUNDTOUCH_THISFRAME = true;
-		//surfaceAngle = Vector3.Lerp(surfaceAngle, other.gameObject.transform.TransformDirection(Vector3.up),.1f);
+		//vec_surfaceNormal = Vector3.Lerp(vec_surfaceNormal, other.gameObject.transform.TransformDirection(Vector3.up),.1f);
 	
 	}
 	void OnTriggerExit(Collider other){

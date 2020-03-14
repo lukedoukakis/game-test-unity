@@ -50,50 +50,7 @@ public class camera_pivot : MonoBehaviour
 		
 		transform.LookAt(playerPos + Vector3.up*.5f + transform.TransformDirection(Vector3.forward*.5f));
 		
-		curRotation = transform.eulerAngles;
-		
-		
-		Quaternion rotation = transform.rotation;
-		rotation *= Quaternion.Euler(Vector3.right * 90);
-		
-		Vector3 angles = rotation.eulerAngles;
-		
-		/*
-		if(angles.x < 30){
-			transform.rotation = Quaternion.Euler(new Vector3(60, curRotation.y, curRotation.z));
-		}
-		else{
-			if(angles.x > 80){
-				transform.rotation = Quaternion.Euler(new Vector3(350, curRotation.y, curRotation.z));
-			}
-		}
-		*/
-		
-		
-		
-		print(curRotation.x);
-		print(angles.x);
-		
-		// 30:60, 80:350
-		
-		
-		
-	
-		
-		
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		/*
 		// Smoothly tilts a transform towards a target rotation.
         float tiltAroundZ = Input.GetAxis("Horizontal") * tiltAngle;
